@@ -16,6 +16,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v6
 
@@ -23,32 +25,21 @@ jobs:
 
       - run: uv venv --python 3.12 .venv
 
-      - name: Install package with deps
-        run: uv pip install --python .venv/bin/python .
+      - run: uv pip install --python .venv/bin/python .
 
       - run: uv pip install --python .venv/bin/python pex
 
-      - name: Build PEX
+      - name: Build
         run: |
           .venv/bin/pex --venv-repository .venv --scie eager --scie-pbs-stripped \
               --scie-platform linux-x86_64 -e mcp_server_mattermost:main \
               -o mcp-server-mattermost
 
-      - run: chmod +x mcp-server-mattermost
-
-      - name: Get tag
-        id: tag
+      - name: Tag & Upload
         run: |
           TAG="${{ inputs.tag || github.event.release.tag_name }}"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-
-      - name: Create release
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          gh release create --target ${{ github.sha }} ${{ steps.tag.outputs.tag }} --generate-notes || true
-
-      - run: gh release upload ${{ steps.tag.outputs.tag }} mcp-server-mattermost --clobber
-
-      - run: |
+          chmod +x mcp-server-mattermost
+          gh release create "$TAG" --generate-notes || true
+          gh release upload "$TAG" mcp-server-mattermost --clobber
           sha256sum mcp-server-mattermost > mcp-server-mattermost.sha256
-          gh release upload ${{ steps.tag.outputs.tag }} mcp-server-mattermost.sha256 --clobber
+          gh release upload "$TAG" mcp-server-mattermost.sha256 --clobber
