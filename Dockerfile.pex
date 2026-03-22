@@ -62,11 +62,11 @@ RUN uv pip install --python /venv/bin/python .
 # This avoids network resolution issues and ensures compatibility
 RUN pex \
     --venv-repository /venv \
+    --venv \
     --scie eager \
     --scie-pbs-stripped \
     --scie-platform linux-x86_64 \
-    --scie-python-version 3.12 \
-    -c mcp-server-mattermost \
+    -e mcp_server_mattermost:main \
     -o /build/mcp-server-mattermost
 
 # -----------------------------------------------------------------------------

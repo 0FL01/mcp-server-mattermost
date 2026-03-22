@@ -31,7 +31,7 @@ jobs:
 
       - name: Build
         run: |
-          .venv/bin/pex --venv-repository .venv --scie eager --scie-pbs-stripped \
+          .venv/bin/pex --venv-repository .venv --venv --scie eager --scie-pbs-stripped \
               --scie-platform linux-x86_64 -e mcp_server_mattermost:main \
               -o mcp-server-mattermost
 
