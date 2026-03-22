@@ -218,13 +218,41 @@ docker run -d -p 8000:8000 \
 
 Health check: `curl http://localhost:8000/health`
 
-### Environment Variables (Docker)
+### Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `MCP_TRANSPORT` | `stdio` | Transport: `stdio` or `http` |
 | `MCP_HOST` | `127.0.0.1` | HTTP bind host (use `0.0.0.0` in Docker) |
 | `MCP_PORT` | `8000` | HTTP port |
+
+## Portable Binary (PEX)
+
+A single-file executable that runs **without Python installed**. Includes embedded CPython via [PEX --scie eager](https://docs.pex-tool.org/).
+
+### Download
+
+Get from [GitHub Releases](https://github.com/cloud-ru-tech/mcp-server-mattermost/releases/latest).
+
+### Build from source
+
+```bash
+# Requires: pip install uv pex
+uv venv .venv
+uv pip install .venv/bin/python "fastmcp>=3.0.0,<4" "httpx>=0.28.0" "pydantic>=2.0" "pydantic-settings>=2.0" "tenacity>=9.0.0" "wsproto>=1.3.2" "cachetools>=5.0"
+uv pip install .venv/bin/python .
+pex --venv-repository .venv --scie eager --scie-pbs-stripped --scie-platform linux-x86_64 -c mcp-server-mattermost -o mcp-server-mattermost
+chmod +x mcp-server-mattermost
+```
+
+Or use GitHub Actions: **Actions → Build Portable Binary → Run workflow**
+
+### Environment Variables (PEX)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PYTHONUNBUFFERED` | `1` | Force unbuffered output |
+| `PEX_ROOT` | `~/.pex` | Cache location |
 
 ## Documentation
 

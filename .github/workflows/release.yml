@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v7
+
+      - run: uv venv --python 3.12 .venv
+
+      - name: Install deps
+        run: |
+          uv pip install --python .venv/bin/python \
+            fastmcp httpx pydantic pydantic-settings tenacity wsproto cachetools
+
+      - run: uv pip install --python .venv/bin/python .
+
+      - name: Build PEX
+        run: |
+          pex --venv-repository .venv --scie eager --scie-pbs-stripped \
+              --scie-platform linux-x86_64 -c mcp-server-mattermost \
+              -o mcp-server-mattermost
+
+      - run: chmod +x mcp-server-mattermost
+
+      - run: gh release upload ${{ github.event.release.tag_name }} mcp-server-mattermost --clobber
+
+      - run: |
+          sha256sum mcp-server-mattermost > mcp-server-mattermost.sha256
+          gh release upload ${{ github.event.release.tag_name }} mcp-server-mattermost.sha256 --clobber
