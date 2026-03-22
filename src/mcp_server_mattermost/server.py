@@ -13,6 +13,7 @@ from starlette.responses import JSONResponse
 
 from .auth import MattermostTokenVerifier
 from .config import get_settings
+from .enums import ToolTag
 from .logging import logger, setup_logging
 from .middleware import LoggingMiddleware
 
@@ -75,6 +76,12 @@ def _create_mcp() -> FastMCP:
 
 mcp = _create_mcp()
 mcp.add_middleware(LoggingMiddleware())
+
+# Disable team tools by default
+mcp.disable(tags={ToolTag.TEAM})
+
+# Disable entry-required tools by default (requires Entry+ edition)
+mcp.disable(tags={ToolTag.ENTRY_REQUIRED})
 
 
 @mcp.custom_route("/health", methods=["GET"])

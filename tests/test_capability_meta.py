@@ -37,20 +37,13 @@ EXPECTED_CAPABILITIES: dict[str, Capability] = {
     "get_user_by_username": Capability.READ,
     "search_users": Capability.READ,
     "get_user_status": Capability.READ,
-    # teams.py
-    "list_teams": Capability.READ,
-    "get_team": Capability.READ,
-    "get_team_members": Capability.READ,
+    # Team tools (list_teams, get_team, get_team_members) are disabled by default
     # files.py
     "upload_file": Capability.WRITE,
     "get_file_info": Capability.READ,
     "get_file_link": Capability.READ,
-    # bookmarks.py
-    "list_bookmarks": Capability.READ,
-    "create_bookmark": Capability.WRITE,
-    "update_bookmark": Capability.WRITE,
-    "delete_bookmark": Capability.DELETE,
-    "update_bookmark_sort_order": Capability.WRITE,
+    # Bookmark tools (list_bookmarks, create_bookmark, update_bookmark,
+    # delete_bookmark, update_bookmark_sort_order) are disabled by default (requires Entry+ edition)
 }
 
 
@@ -180,14 +173,18 @@ class TestCapabilityCounts:
 
     def test_expected_tool_count(self):
         """Total tool count matches expectations."""
-        assert len(EXPECTED_CAPABILITIES) == 36
+        # 28 tools: 36 total - 3 team tools - 5 bookmark tools (disabled by default)
+        assert len(EXPECTED_CAPABILITIES) == 28
 
     def test_capability_distribution(self):
         """Capability distribution matches design."""
         counts: dict[Capability, int] = {}
         for cap in EXPECTED_CAPABILITIES.values():
             counts[cap] = counts.get(cap, 0) + 1
-        assert counts[Capability.READ] == 19
-        assert counts[Capability.WRITE] == 13
+        # 15 read: 19 - 3 team tools (all READ) - 1 list_bookmarks (READ)
+        assert counts[Capability.READ] == 15
+        # 10 write: 13 - 3 bookmark write tools
+        assert counts[Capability.WRITE] == 10
         assert counts[Capability.CREATE] == 2
-        assert counts[Capability.DELETE] == 2
+        # 1 delete: 2 - 1 delete_bookmark
+        assert counts[Capability.DELETE] == 1

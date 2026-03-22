@@ -23,26 +23,16 @@ for _tool in ("add_reaction", "remove_reaction", "get_reactions", "pin_message",
     _TOOL_TO_MODULE[_tool] = "posts"
 for _tool in ("get_me", "get_user", "get_user_by_username", "search_users", "get_user_status"):
     _TOOL_TO_MODULE[_tool] = "users"
-for _tool in ("list_teams", "get_team", "get_team_members"):
-    _TOOL_TO_MODULE[_tool] = "teams"
+# Team tools (list_teams, get_team, get_team_members) are disabled by default
+# Bookmark tools are disabled by default (requires Entry+ edition)
 for _tool in ("upload_file", "get_file_info", "get_file_link"):
     _TOOL_TO_MODULE[_tool] = "files"
-for _tool in (
-    "list_bookmarks",
-    "create_bookmark",
-    "update_bookmark",
-    "delete_bookmark",
-    "update_bookmark_sort_order",
-):
-    _TOOL_TO_MODULE[_tool] = "bookmarks"
 
 _MODULE_TO_TAG: dict[str, str] = {
-    "bookmarks": "bookmark",
     "channels": "channel",
     "messages": "message",
     "posts": "post",
     "users": "user",
-    "teams": "team",
     "files": "file",
 }
 
@@ -81,7 +71,8 @@ class TestToolCount:
     """Verify expected number of tools are registered."""
 
     async def test_total_tool_count(self, all_tools):
-        assert len(all_tools) == 36, f"Expected 36 tools, got {len(all_tools)}: {list(all_tools.keys())}"
+        # 28 tools: 36 total - 3 team tools - 5 bookmark tools (disabled by default)
+        assert len(all_tools) == 28, f"Expected 28 tools, got {len(all_tools)}: {list(all_tools.keys())}"
 
     async def test_no_unexpected_tools(self, all_tools):
         """Catch new tools not in _TOOL_TO_MODULE."""
