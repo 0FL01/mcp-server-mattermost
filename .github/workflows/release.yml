@@ -10,6 +10,9 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -25,13 +28,11 @@ jobs:
           uv pip install --python .venv/bin/python \
             fastmcp httpx pydantic pydantic-settings tenacity wsproto cachetools
 
-      - run: uv pip install --python .venv/bin/python .
-
-      - run: uv tool install pex
+      - run: uv pip install --python .venv/bin/python pex
 
       - name: Build PEX
         run: |
-          uv run pex --venv-repository .venv --scie eager --scie-pbs-stripped \
+          .venv/bin/pex --venv-repository .venv --scie eager --scie-pbs-stripped \
               --scie-platform linux-x86_64 -c mcp-server-mattermost \
               -o mcp-server-mattermost
 
@@ -40,13 +41,13 @@ jobs:
       - name: Get tag
         id: tag
         run: |
-          TAG=${{ github.event.inputs.tag || github.event.release.tag_name }}
+          TAG="${{ inputs.tag || github.event.release.tag_name }}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Create release
         if: github.event_name == 'workflow_dispatch'
         run: |
-          gh release create ${{ steps.tag.outputs.tag }} --generate-notes || true
+          gh release create --target ${{ github.sha }} ${{ steps.tag.outputs.tag }} --generate-notes || true
 
       - run: gh release upload ${{ steps.tag.outputs.tag }} mcp-server-mattermost --clobber
 
