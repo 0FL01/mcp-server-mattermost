@@ -27,9 +27,11 @@ jobs:
 
       - run: uv pip install --python .venv/bin/python .
 
+      - run: uv tool install pex
+
       - name: Build PEX
         run: |
-          pex --venv-repository .venv --scie eager --scie-pbs-stripped \
+          uv run pex --venv-repository .venv --scie eager --scie-pbs-stripped \
               --scie-platform linux-x86_64 -c mcp-server-mattermost \
               -o mcp-server-mattermost
 
