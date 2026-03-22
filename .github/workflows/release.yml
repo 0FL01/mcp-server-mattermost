@@ -1,6 +1,12 @@
 name: Release
 
 on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v0.3.0)"
+        required: true
+        type: string
   release:
     types: [published]
 
@@ -29,8 +35,19 @@ jobs:
 
       - run: chmod +x mcp-server-mattermost
 
-      - run: gh release upload ${{ github.event.release.tag_name }} mcp-server-mattermost --clobber
+      - name: Get tag
+        id: tag
+        run: |
+          TAG=${{ github.event.inputs.tag || github.event.release.tag_name }}
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create release
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          gh release create ${{ steps.tag.outputs.tag }} --generate-notes || true
+
+      - run: gh release upload ${{ steps.tag.outputs.tag }} mcp-server-mattermost --clobber
 
       - run: |
           sha256sum mcp-server-mattermost > mcp-server-mattermost.sha256
-          gh release upload ${{ github.event.release.tag_name }} mcp-server-mattermost.sha256 --clobber
+          gh release upload ${{ steps.tag.outputs.tag }} mcp-server-mattermost.sha256 --clobber
