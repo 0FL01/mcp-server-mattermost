@@ -37,7 +37,10 @@ EXPECTED_CAPABILITIES: dict[str, Capability] = {
     "get_user_by_username": Capability.READ,
     "search_users": Capability.READ,
     "get_user_status": Capability.READ,
-    # Team tools (list_teams, get_team, get_team_members) are disabled by default
+    # teams.py
+    "list_teams": Capability.READ,
+    "get_team": Capability.READ,
+    "get_team_members": Capability.READ,
     # files.py
     "upload_file": Capability.WRITE,
     "get_file_info": Capability.READ,
@@ -173,16 +176,16 @@ class TestCapabilityCounts:
 
     def test_expected_tool_count(self):
         """Total tool count matches expectations."""
-        # 28 tools: 36 total - 3 team tools - 5 bookmark tools (disabled by default)
-        assert len(EXPECTED_CAPABILITIES) == 28
+        # 31 tools: 36 total - 5 bookmark tools (disabled by default)
+        assert len(EXPECTED_CAPABILITIES) == 31
 
     def test_capability_distribution(self):
         """Capability distribution matches design."""
         counts: dict[Capability, int] = {}
         for cap in EXPECTED_CAPABILITIES.values():
             counts[cap] = counts.get(cap, 0) + 1
-        # 15 read: 19 - 3 team tools (all READ) - 1 list_bookmarks (READ)
-        assert counts[Capability.READ] == 15
+        # 18 read: 19 - 1 list_bookmarks (READ)
+        assert counts[Capability.READ] == 18
         # 10 write: 13 - 3 bookmark write tools
         assert counts[Capability.WRITE] == 10
         assert counts[Capability.CREATE] == 2

@@ -77,9 +77,6 @@ def _create_mcp() -> FastMCP:
 mcp = _create_mcp()
 mcp.add_middleware(LoggingMiddleware())
 
-# Disable team tools by default
-mcp.disable(tags={ToolTag.TEAM})
-
 # Disable entry-required tools by default (requires Entry+ edition)
 mcp.disable(tags={ToolTag.ENTRY_REQUIRED})
 
